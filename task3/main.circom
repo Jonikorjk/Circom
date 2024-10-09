@@ -20,11 +20,11 @@ template ValidateInputSudokuMatrix() {
 
     for (var i = 0; i < 9; i++) { 
         for (var j = 0; j < 9; j++) { 
-            gt[i][j] = GreaterThan(0);
+            gt[i][j] = GreaterThan(8);
             gt[i][j].in <== [matrix[i][j], 0];
             gt[i][j].out === 1;
 
-            lt[i][j] = LessThan(10);
+            lt[i][j] = LessThan(8);
             lt[i][j].in <== [matrix[i][j], 10];
             lt[i][j].out === 1;
         }
@@ -36,7 +36,7 @@ template VerifySudokuRows() {
     component isEq[9][9];
 
     for (var i = 0; i < 9; i++) { 
-        for (var j = i; j < 9; j++) { 
+        for (var j = i + 1; j < 9; j++) { 
             isEq[i][j] = IsEqual();
             isEq[i][j].in <== [row[i], row[j]];
             isEq[i][j].out === 0;
