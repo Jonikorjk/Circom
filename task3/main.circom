@@ -115,7 +115,7 @@ template VerifySudokuMatrix() {
     component colsVerifier[9];
     component subGridVerifier = VerifySubGrids();
 
-    // Verify cols
+    // Verify rows
     for (var i; i < 9; i++) { 
         rowsVerifier[i] = VerifySudokuRows();
         rowsVerifier[i].row <== matrix[i];
