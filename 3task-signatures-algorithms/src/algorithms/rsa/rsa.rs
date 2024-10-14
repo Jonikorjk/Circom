@@ -4,7 +4,10 @@ use sha2::Digest;
 
 use super::{RSAKeypair, RSAPrivateKey, RSAPublicKey};
 
-/// 2048 bits impl
+/// # RSA Algorithm implementation
+/// * Key generation algorithm used from this paper: https://www.simplilearn.com/tutorials/cryptography-tutorial/rsa-algorithm
+/// * Sign and verification algorithms used from this paper: [link](https://eitca.org/cybersecurity/eitc-is-acc-advanced-classical-cryptography/digital-signatures/digital-signatures-and-security-services/examination-review-digital-signatures-and-security-services/how-does-the-rsa-digital-signature-algorithm-work-and-what-are-the-mathematical-principles-that-ensure-its-security-and-reliability/)
+/// 
 pub struct RSA {
     exp: BigUint,
 }

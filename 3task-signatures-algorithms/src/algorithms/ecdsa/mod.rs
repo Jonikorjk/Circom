@@ -5,7 +5,13 @@ use sha2::Digest;
 
 pub mod models;
 
-// SECP256K1
+
+
+
+/// # Elliptic Curve Digital Signature Algorithm
+/// The key generation, signing, and verification algorithms used in this project were described in this article: https://ru.wikipedia.org/wiki/ECDSA
+/// 
+/// The eliptic curve parameters took from the secp256k1: https://neuromancer.sk/std/secg/secp256k1#
 pub struct ECDSA {
     n: BigUint,
     G: Point2<BigUint>,
