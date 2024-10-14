@@ -52,8 +52,7 @@ impl ECDSA {
 
     pub fn generate_keypair(&self) -> models::ECDSAKeypair {
         let d = self.generate_value();
-        let mut Q = self.G.clone();
-        Q.apply(|x| *x = x.clone() * &d);
+        let Q = self.G.clone() * d.clone();
 
         models::ECDSAKeypair::new(d, Q)
     }
