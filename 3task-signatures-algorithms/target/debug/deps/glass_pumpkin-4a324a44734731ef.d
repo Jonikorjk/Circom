@@ -1,0 +1,10 @@
+/Users/jonik/Desktop/ZK course/3task-signatures-algorithms/target/debug/deps/libglass_pumpkin-4a324a44734731ef.rmeta: /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/lib.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/common.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/error.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/prime.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/rand.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/safe_prime.rs
+
+/Users/jonik/Desktop/ZK course/3task-signatures-algorithms/target/debug/deps/glass_pumpkin-4a324a44734731ef.d: /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/lib.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/common.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/error.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/prime.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/rand.rs /Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/safe_prime.rs
+
+/Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/lib.rs:
+/Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/common.rs:
+/Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/error.rs:
+/Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/prime.rs:
+/Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/rand.rs:
+/Users/jonik/.cargo/registry/src/index.crates.io-6f17d22bba15001f/glass_pumpkin-1.7.0/src/safe_prime.rs:
