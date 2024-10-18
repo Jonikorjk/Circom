@@ -1,5 +1,8 @@
+use std::vec;
+
 use eyre::ContextCompat;
 use num_bigint::BigUint;
+use openssl::base64;
 use sha2::Digest;
 
 use super::{RSAKeypair, RSAPrivateKey, RSAPublicKey};
@@ -7,7 +10,7 @@ use super::{RSAKeypair, RSAPrivateKey, RSAPublicKey};
 /// # RSA Algorithm implementation
 /// * Key generation algorithm used from this paper: https://www.simplilearn.com/tutorials/cryptography-tutorial/rsa-algorithm
 /// * Sign and verification algorithms used from this paper: [link](https://eitca.org/cybersecurity/eitc-is-acc-advanced-classical-cryptography/digital-signatures/digital-signatures-and-security-services/examination-review-digital-signatures-and-security-services/how-does-the-rsa-digital-signature-algorithm-work-and-what-are-the-mathematical-principles-that-ensure-its-security-and-reliability/)
-/// 
+///
 pub struct RSA {
     exp: BigUint,
 }
@@ -57,10 +60,35 @@ impl RSA {
         msg: &str,
         pub_key: RSAPublicKey,
         signature: BigUint,
+        rm_padding: bool,
     ) -> eyre::Result<bool> {
         let message = self.hash_message(msg)?;
-        let preimage_msg = signature.modpow(&pub_key.e, &pub_key.n);
+        let signature_containing = signature.modpow(&pub_key.e, &pub_key.n);
 
-        Ok(message == preimage_msg)
+        if rm_padding {
+            let preimage_message = extract_encoded_message(&signature_containing.to_bytes_be());
+            return Ok(message == BigUint::from_bytes_be(&preimage_message));
+        }
+
+        Ok(message == signature_containing)
     }
+
+    pub fn decode_signature(signature: &str) -> eyre::Result<BigUint> {
+        let signature_bytes = openssl::base64::decode_block(signature)?;
+
+        Ok(BigUint::from_bytes_be(&signature_bytes))
+    }
+}
+
+fn extract_encoded_message(input: &[u8]) -> Vec<u8> {
+    let mut start_index = 0;
+
+    for (index, byte) in input.iter().enumerate() {
+        if *byte == 0 { 
+            start_index = index + 1;
+            break;
+        }
+    }
+
+    input[start_index..].to_vec()
 }
