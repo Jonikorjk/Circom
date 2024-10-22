@@ -3,7 +3,7 @@ use rsa::{PaddingScheme, PublicKeyParts};
 use sha2::Digest;
 use signatures::algorithms::rsa::{rsa::RSA, RSAPrivateKey, RSAPublicKey};
 
-/// Keypair generation, signing message and signature verifying for the RSA implementation
+/// Keypair generation, signing message and signature verifying for the RSA implementation (2048 bit)
 #[test]
 fn own_impl_rsa_basic_test() {
     let rsa = RSA::new();
@@ -75,7 +75,6 @@ fn verify_signature() {
         .verify_signature(message, pub_key, signature, true)
         .expect("algorithm should execute");
 
-    println!("{}", verified);
     assert!(verified);
 }
 

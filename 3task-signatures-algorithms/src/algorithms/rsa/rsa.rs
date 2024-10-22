@@ -1,8 +1,5 @@
-use std::vec;
-
 use eyre::ContextCompat;
 use num_bigint::BigUint;
-use openssl::base64;
 use sha2::Digest;
 
 use super::{RSAKeypair, RSAPrivateKey, RSAPublicKey};
@@ -84,7 +81,7 @@ fn extract_encoded_message(input: &[u8]) -> Vec<u8> {
     let mut start_index = 0;
 
     for (index, byte) in input.iter().enumerate() {
-        if *byte == 0 { 
+        if *byte == 0 {
             start_index = index + 1;
             break;
         }

@@ -3,12 +3,12 @@ use num_bigint::BigUint;
 
 pub struct ECDSAKeypair {
     pub d: BigUint,
-    pub Q: Point2<BigUint>,
+    pub q_point: Point2<BigUint>,
 }
 
 impl ECDSAKeypair {
-    pub fn new(d: BigUint, Q: Point2<BigUint>) -> ECDSAKeypair {
-        ECDSAKeypair { d, Q }
+    pub fn new(d: BigUint, q_point: Point2<BigUint>) -> ECDSAKeypair {
+        ECDSAKeypair { d, q_point }
     }
 }
 

@@ -1,8 +1,10 @@
+use math::EcdsaMath;
 use nalgebra::Point2;
 use num_bigint::{BigUint, RandBigInt};
 use rand::thread_rng;
 use sha2::Digest;
 
+pub mod math;
 pub mod models;
 
 /// # Elliptic Curve Digital Signature Algorithm
@@ -10,8 +12,10 @@ pub mod models;
 ///
 /// The eliptic curve parameters took from the secp256k1: https://neuromancer.sk/std/secg/secp256k1#
 pub struct ECDSA {
-    n: BigUint,
-    G: Point2<BigUint>,
+    pub n: BigUint,
+    pub g_point: Point2<BigUint>,
+    pub p: BigUint,
+    a: BigUint,
 }
 
 impl ECDSA {
@@ -22,7 +26,7 @@ impl ECDSA {
                 16,
             )
             .expect("should parse bytes n"),
-            G: Point2::new(
+            g_point: Point2::new(
                 BigUint::parse_bytes(
                     b"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
                     16,
@@ -34,6 +38,16 @@ impl ECDSA {
                 )
                 .expect("should parse bytes G.y"),
             ),
+            p: BigUint::parse_bytes(
+                b"fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+                16,
+            )
+            .expect("should parse p"),
+            a: BigUint::parse_bytes(
+                b"0000000000000000000000000000000000000000000000000000000000000000",
+                16,
+            )
+            .expect("should parse a"),
         }
     }
 }
@@ -41,10 +55,8 @@ impl ECDSA {
 impl ECDSA {
     fn generate_value(&self) -> BigUint {
         let mut rng = thread_rng();
-        let lbound = BigUint::from(1 as u8);
-        let rbound = self.n.clone() - BigUint::from(1 as u8);
 
-        rng.gen_biguint_range(&lbound, &rbound)
+        rng.gen_biguint_range(&1u8.into(), &self.n)
     }
 
     fn hash_message(&self, msg: &str) -> BigUint {
@@ -56,17 +68,17 @@ impl ECDSA {
 
     pub fn generate_keypair(&self) -> models::ECDSAKeypair {
         let d = self.generate_value();
-        let Q = self.G.clone() * d.clone();
+        let q_point = self.mul_point(self.g_point.clone(), d.clone());
 
-        models::ECDSAKeypair::new(d, Q)
+        models::ECDSAKeypair::new(d, q_point)
     }
 
     pub fn sign_message(&self, msg: &str, d: BigUint) -> models::ECDSASignature {
         loop {
             let k = self.generate_value();
-            let M = self.G.clone() * k.clone();
+            let kg_point = self.mul_point(self.g_point.clone(), k.clone());
 
-            let r = &M.x % &self.n;
+            let r = &kg_point.x % &self.n;
 
             if r == BigUint::ZERO {
                 continue;
@@ -77,7 +89,8 @@ impl ECDSA {
             let Some(s1) = k.modinv(&self.n) else {
                 continue;
             };
-            let s2 = e + (&d * r.clone());
+
+            let s2 = (&d * &r + e) % &self.n;
 
             let s = (s1 * s2) % &self.n;
 
@@ -92,12 +105,12 @@ impl ECDSA {
     pub fn verify_signature(
         &self,
         msg: &str,
-        Q: Point2<BigUint>,
+        q_point: Point2<BigUint>,
         signature: &models::ECDSASignature,
     ) -> bool {
-        if !(BigUint::from(1 as u8)..self.n.clone()).contains(&signature.r)
-            || !(BigUint::from(1 as u8)..self.n.clone()).contains(&signature.s)
-        {
+        let range = 1u8.into()..self.n.clone();
+
+        if !range.contains(&signature.r) || !range.contains(&signature.s) {
             return false;
         }
 
@@ -106,15 +119,21 @@ impl ECDSA {
             return false;
         };
 
-        let u1 = e * w.clone();
-        let u2 = signature.r.clone() * w % &self.n;
-        let X = self.G.clone() * u1 + (Q * u2).coords;
+        let u1 = e * &w;
+        let u2 = &signature.r * w % &self.n;
 
-        if X.is_empty() {
+        let u1_g = self.mul_point(self.g_point.clone(), u1);
+        let u2_q = self.mul_point(q_point.clone(), u2);
+
+        let x_point = self.add_points(&u1_g, &u2_q);
+        if x_point.is_empty() {
             return false;
         }
 
-        let v = X.x.clone() % &self.n;
+        let v = &x_point.x % &self.n;
+
+        println!("v: {:?}", v);
+        println!("signature.r: {:?}", signature.r);
 
         v == signature.r
     }
