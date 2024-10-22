@@ -1,6 +1,6 @@
 use math::EcdsaMath;
 use nalgebra::Point2;
-use num_bigint::{BigInt, BigUint, RandBigInt};
+use num_bigint::{BigInt, RandBigInt};
 use rand::thread_rng;
 use sha2::Digest;
 
@@ -63,7 +63,8 @@ impl ECDSA {
         let mut sha256 = sha2::Sha256::new();
         sha256.update(msg);
         let digest = sha256.finalize();
-        BigInt::from_bytes_be(num_bigint::Sign::NoSign, &digest)
+
+        BigInt::from_bytes_be(num_bigint::Sign::Plus, &digest)
     }
 
     pub fn generate_keypair(&self) -> models::ECDSAKeypair {
@@ -74,32 +75,13 @@ impl ECDSA {
     }
 
     pub fn sign_message(&self, msg: &str, d: BigInt) -> models::ECDSASignature {
-        loop {
-            let k = self.generate_value();
-            let kg_point = self.mul_point(self.g_point.clone(), k.clone());
+        let hash = self.hash_message(msg);
+        let k = self.generate_value();
+        let r_point = self.mul_point(self.g_point.clone(), k.clone());
+        let r = &r_point.x % &self.p;
+        let s = (k.modinv(&self.n).expect("should inv") * (hash + &r * d)) % &self.n;
 
-            let r = &kg_point.x % &self.n;
-
-            if r == BigInt::ZERO {
-                continue;
-            }
-
-            let e = self.hash_message(msg);
-
-            let Some(s1) = k.modinv(&self.n) else {
-                continue;
-            };
-
-            let s2 = (&d * &r + e) % &self.n;
-
-            let s = (s1 * s2) % &self.n;
-
-            if s == BigInt::ZERO {
-                continue;
-            }
-
-            return models::ECDSASignature::new(r, s);
-        }
+        models::ECDSASignature::new(r, s)
     }
 
     pub fn verify_signature(
@@ -108,33 +90,14 @@ impl ECDSA {
         q_point: Point2<BigInt>,
         signature: &models::ECDSASignature,
     ) -> bool {
-        let range = 1u8.into()..self.n.clone();
+        let s1 = signature.s.modinv(&self.n).expect("should inv");
+        let hash = self.hash_message(msg);
+        let r_point = self.add_points(
+            &self.mul_point(self.g_point.clone(), &s1 * hash),
+            &self.mul_point(q_point, &signature.r * &s1),
+        );
 
-        if !range.contains(&signature.r) || !range.contains(&signature.s) {
-            return false;
-        }
-
-        let e = self.hash_message(msg);
-        let Some(w) = signature.s.modinv(&self.n) else {
-            return false;
-        };
-
-        let u1 = e * &w;
-        let u2 = &signature.r * w % &self.n;
-
-        let u1_g = self.mul_point(self.g_point.clone(), u1);
-        let u2_q = self.mul_point(q_point.clone(), u2);
-
-        let x_point = self.add_points(&u1_g, &u2_q);
-        if x_point.is_empty() {
-            return false;
-        }
-
-        let v = &x_point.x % &self.n;
-
-        println!("v: {:?}", v);
-        println!("signature.r: {:?}", signature.r);
-
-        v == signature.r
+        r_point.x == signature.r
     }
 }
+ 

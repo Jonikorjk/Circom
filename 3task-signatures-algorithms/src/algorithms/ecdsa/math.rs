@@ -1,5 +1,5 @@
 use nalgebra::Point2;
-use num_bigint::{BigInt, BigUint};
+use num_bigint::BigInt;
 
 use super::ECDSA;
 
@@ -20,13 +20,15 @@ impl EcdsaMath for ECDSA {
             (&p1.y - &p2.y) * (&p1.x - &p2.x).modinv(&self.p).expect("should inverse") % &self.p;
 
         let x = (slope.pow(2) - &p1.x - &p2.x) % &self.p;
-        let y = ((slope * (&p1.x - &x) - &p1.y)) % &self.p;
+        let y = (slope * (&p1.x - &x) - &p1.y) % &self.p;
 
         Point2::new(x, y)
     }
 
     fn double_point(&self, point: &Point2<BigInt>) -> Point2<BigInt> {
-        let slope: BigInt = ((3u8 * point.x.pow(2) + &self.a) * (2u8 * &point.y).modinv(&self.p).expect("should inverse")) % &self.p;
+        let slope: BigInt = ((3u8 * point.x.pow(2) + &self.a)
+            * (2u8 * &point.y).modinv(&self.p).expect("should inverse"))
+            % &self.p;
 
         let x = (slope.pow(2) - (2u8 * &point.x)) % &self.p;
         let y = (slope * (&point.x - &x) - &point.y) % &self.p;
@@ -45,7 +47,7 @@ impl EcdsaMath for ECDSA {
             if bit == &1u8 {
                 current_point = self.add_points(&current_point, &p1);
             }
-        }); 
+        });
 
         current_point
     }

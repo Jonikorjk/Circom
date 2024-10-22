@@ -45,7 +45,7 @@ fn basic_flow_with_external_keys() {
 
 #[test]
 fn verify_signature() {
-    // External lib operations
+    // External lib signing
     let (ext_pub_key, priv_key) = generate_external_rsa_keypair();
     let message = "sha256";
 
