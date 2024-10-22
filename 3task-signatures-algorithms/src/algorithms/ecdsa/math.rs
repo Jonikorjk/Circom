@@ -1,17 +1,17 @@
 use nalgebra::Point2;
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 
 use super::ECDSA;
 
 // https://learnmeabitcoin.com/technical/cryptography/elliptic-curve/#double
 pub trait EcdsaMath {
-    fn add_points(&self, q: &Point2<BigUint>, p: &Point2<BigUint>) -> Point2<BigUint>;
-    fn double_point(&self, p: &Point2<BigUint>) -> Point2<BigUint>;
-    fn mul_point(&self, p1: Point2<BigUint>, scalar: BigUint) -> Point2<BigUint>;
+    fn add_points(&self, q: &Point2<BigInt>, p: &Point2<BigInt>) -> Point2<BigInt>;
+    fn double_point(&self, p: &Point2<BigInt>) -> Point2<BigInt>;
+    fn mul_point(&self, p1: Point2<BigInt>, scalar: BigInt) -> Point2<BigInt>;
 }
 
 impl EcdsaMath for ECDSA {
-    fn add_points(&self, p1: &Point2<BigUint>, p2: &Point2<BigUint>) -> Point2<BigUint> {
+    fn add_points(&self, p1: &Point2<BigInt>, p2: &Point2<BigInt>) -> Point2<BigInt> {
         if p1 == p2 {
             return self.double_point(p1);
         }
@@ -25,20 +25,19 @@ impl EcdsaMath for ECDSA {
         Point2::new(x, y)
     }
 
-    fn double_point(&self, point: &Point2<BigUint>) -> Point2<BigUint> {
-        let slope: BigUint = ((3u8 * point.x.pow(2) + &self.a) * (2u8 * &point.y).modinv(&self.p).expect("should inverse")) % &self.p;
+    fn double_point(&self, point: &Point2<BigInt>) -> Point2<BigInt> {
+        let slope: BigInt = ((3u8 * point.x.pow(2) + &self.a) * (2u8 * &point.y).modinv(&self.p).expect("should inverse")) % &self.p;
 
         let x = (slope.pow(2) - (2u8 * &point.x)) % &self.p;
-        println!("x: {:?} p.x {:?}", x, point.x);
         let y = (slope * (&point.x - &x) - &point.y) % &self.p;
 
         Point2::new(x, y)
     }
 
-    fn mul_point(&self, p1: Point2<BigUint>, scalar: BigUint) -> Point2<BigUint> {
+    fn mul_point(&self, p1: Point2<BigInt>, scalar: BigInt) -> Point2<BigInt> {
         let mut current_point = p1.clone();
 
-        let binary_representation = scalar.to_radix_be(2);
+        let binary_representation = scalar.to_radix_be(2).1;
 
         binary_representation.iter().skip(1).for_each(|bit| {
             current_point = self.double_point(&current_point);
